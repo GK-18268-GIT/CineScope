@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { cn } from "cn";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +19,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { loginUser, registerUser } from "@/actions/auth";
+import { loginUser } from "@/actions/auth";
 
 export function LoginForm({
   className,
@@ -26,7 +27,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const initialState = {
     message: null,
-    error: {},
+    errors: {},
     success: false,
   };
   const [state, formAction, isPending] = useActionState(
@@ -82,7 +83,8 @@ export function LoginForm({
                   Login with Google
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Don&apos;t have an account?{" "}
+                  <Link href="/register">Register</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
