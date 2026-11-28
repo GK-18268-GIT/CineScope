@@ -16,13 +16,52 @@ export async function loginUser(
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    console.log("email & password :::: ", email, password);
+    // console.log("email & password :::: ", email, password);
+    if (!email || email === "") {
+      return {
+        message: null,
+        errors: {
+          email: ["Email is required!"],
+        },
+      };
+    }
 
-    return {
-      message: "",
-      success: true,
-      errors: {},
-    };
+    if (!password || password === "") {
+      return {
+        message: null,
+        errors: {
+          password: ["Password is required!"],
+        },
+      };
+    }
+
+    try {
+      const response = await auth.api.signInEmail({
+        body: {
+          email,
+          password,
+          rememberMe: true,
+        },
+      });
+      //For debugging purpose
+      console.log("Login response: ", response);
+
+      return {
+        message: "User login successfully",
+        success: true,
+        errors: {},
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return {
+          message: "User login failed",
+          success: false,
+          errors: {
+            general: ["An error occurred during login. Please try again."],
+          },
+        };
+      }
+    }
   }
 
   return {
@@ -30,25 +69,19 @@ export async function loginUser(
     success: true,
     errors: {},
   };
-
-  try {
-    //
-  } catch {
-    //
-  }
 }
 
 export async function registerUser(
-  _:AuthFormState,
+  _: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  if(formData) {
+  if (formData) {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
 
-    if(!name || name === "") {
+    if (!name || name === "") {
       return {
         message: null,
         errors: {
@@ -57,7 +90,7 @@ export async function registerUser(
       };
     }
 
-    if(!email || email === "") {
+    if (!email || email === "") {
       return {
         message: null,
         errors: {
@@ -66,7 +99,7 @@ export async function registerUser(
       };
     }
 
-    if(!password || password === "") {
+    if (!password || password === "") {
       return {
         message: null,
         errors: {
@@ -75,7 +108,7 @@ export async function registerUser(
       };
     }
 
-    if(password !== confirmPassword) {
+    if (password !== confirmPassword) {
       return {
         message: null,
         success: false,
@@ -88,20 +121,21 @@ export async function registerUser(
     try {
       const response = await auth.api.signUpEmail({
         body: {
-          name, email, password,
+          name,
+          email,
+          password,
         },
-      })
+      });
 
       console.log("response: ", response);
 
       return {
         message: "User registration successful",
         success: true,
-        errors: {}
-      }
-
-    } catch(error) {
-      console.log("Registration error", error)
+        errors: {},
+      };
+    } catch (error) {
+      console.log("Registration error", error);
 
       return {
         message: "User registration failed",
@@ -109,10 +143,8 @@ export async function registerUser(
         errors: {
           general: ["An error occurred during registration."],
         },
-      }
-
+      };
     }
-
   }
 
   return {
@@ -126,5 +158,4 @@ export async function registerUser(
   } catch {
     //
   }
-
 }

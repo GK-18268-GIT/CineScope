@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { cn } from "cn";
 import Link from "next/link";
+import { useRouter } from "next/navigation"
 
+import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,9 +19,15 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldError
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { loginUser } from "@/actions/auth";
+
+type LoginFormValues = {
+  email: string;
+  password: string;
+}
 
 export function LoginForm({
   className,
@@ -30,10 +38,35 @@ export function LoginForm({
     errors: {},
     success: false,
   };
+
+  const router = useRouter();
+
   const [state, formAction, isPending] = useActionState(
     loginUser,
     initialState,
   );
+
+  const [values, setValues] = useState<LoginFormValues>({
+    email: "",
+    password: ""
+  });
+
+  const handleChanger = (field: keyof LoginFormValues) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+
+    setValues((currentValues) => ({
+      ...currentValues,
+      [field]: value
+    }));
+  };
+
+  useEffect(() => {
+    if(state.success) {
+      router.push("/dashboard");
+    } else {
+      console.log("Registration state: ", state)
+    }
+  }, [state, router]);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -53,9 +86,16 @@ export function LoginForm({
                   id="email"
                   name="email"
                   type="email"
+                  autoComplete="email"
+                  autoFocus
+                  value={values.email}
+                  onChange={handleChanger("email")}
                   placeholder="Enter your email address"
-                  required
+                 // required
                 />
+                <FieldError className="text-red-500 text-xs ml-l">
+                  {state.errors?.email?.[0]}
+                </FieldError>
               </Field>
               <Field>
                 <div className="flex items-center">
@@ -72,11 +112,23 @@ export function LoginForm({
                   name="password"
                   type="password"
                   placeholder="Enter your password"
-                  required
+                  value={values.password}
+                  onChange={handleChanger("password")}
+                  //required
                 />
+                <FieldError className="text-red-500 text-xs ml-l">
+                  {state.errors?.password?.[0]}
+                </FieldError>
               </Field>
-              <Field>
-                <Button size="lg" type="submit">
+              <Field className="grid gap-2">
+                <FieldError className="text-xs text-center text-red-500">
+                  {state.errors?.general?.[0]}
+                </FieldError>
+                <Button size="lg" type="submit" disabled={isPending}>
+                  <Loader2Icon className={cn(
+                    "animate-spin",
+                    isPending ? "block" : "hidden"
+                  )}/>
                   Login
                 </Button>
                 <Button size="lg" variant="outline" type="button" disabled>
